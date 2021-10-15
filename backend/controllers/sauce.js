@@ -29,11 +29,23 @@ exports.createSauce = (req, res, next) => {
     });
     sauce.save()
         .then(() => res.status(201).json({ message: 'Sauce enregistrée !'}))
-        .catch(error => res.status(400).json({ error }));
+        .catch(error => {
+            console.log(json({ error }));
+            res.status(400).json({ error });           
+        });
 };
 
 // Modifier une sauce
-exports.modifySauce = (req, res, next) => {
+exports.modifySauce = (req, res, next) => { 
+//         const sauceObject = req.file ?
+//         {
+//             ...JSON.parse(req.body.sauce),
+//             imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+//          } : {...req.body };
+//          Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
+//             .then(() => res.status(200).json({ message: 'Sauce modifiée !'}))
+//             .catch(error => res.status(400).json({ error }));
+// }
     if(req.file) {
         // Si l'image est modifiée, on supprime l'ancienne image du dossier /images
         Sauce.findOne({ _id: req.params.id })
@@ -43,7 +55,7 @@ exports.modifySauce = (req, res, next) => {
                     // après suppression de l'ancienne image on met à jour le dossier en ajoutant la nouvelle image
                     const sauceObject = {
                         ...JSON.parse(req.body.sauce),
-                        imagesUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+                        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
                     }
                     Sauce.updateOne({ _id: req.params.id }, {...sauceObject, _id: req.params.id})
                         .then(() => res.status(200).json({ message: 'Sauce modifiée !'}))

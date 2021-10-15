@@ -3,9 +3,11 @@ const bodyParser = require('body-parser');
 // const cors = require('cors');
 const mongoose = require('mongoose');
 const fs = require('fs');
+const morgan = require('morgan');
 const path = require('path');
 const helmet = require('helmet');
 require('dotenv').config();
+const session = require('express-session');
 
 // on importe les routeurs
 const sauceRoutes = require('./routes/sauces');
@@ -35,8 +37,16 @@ app.use((req, res, next) => {
 
 app.use(bodyParser.json());
 
+// Utilisation de 'morgan' pour logger les requêtes passées au serveur
+const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
+app.use(morgan('combined', { stream: accessLogStream }));
+
 // Sécurisation des headers
 app.use(helmet());
+
+// Stockage du json web token coté frontend dans la session
+app.use(session({ secret: process.env.COOKIE_MDP, resave: true, 
+                  saveUninitialized: true, cookie: { maxAge: 1800000}})) //cookie stocké pdt 30min
 
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
